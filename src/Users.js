@@ -1,31 +1,33 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useReducer } from "react";
 import axios from "axios";
+import { reducer } from "./reducer";
 
 function Users() {
-  const [users, setUsers] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
+  const [state, dispatch] = useReducer(reducer, {
+    loading: false,
+    data: null,
+    error: null,
+  });
   const fetchUsers = async () => {
+    dispatch({ type: "LOADING" });
+    console.log("Loadiing...");
     try {
-      setUsers(null);
-      setError(null);
-      setLoading(true);
       const response = await axios.get(
         "https://jsonplaceholder.typicode.com/users/"
       );
-      setUsers(response.data);
+      dispatch({ type: "SUCCESS", data: response.data });
+      console.log("Success...");
     } catch (e) {
-      console.log(e.response.status);
-      setError(e);
+      dispatch({ type: "ERROR", error: e });
+      console.log("Error...");
     }
-    setLoading(false);
   };
 
   useEffect(() => {
     fetchUsers();
   }, []);
 
+  const { loading, data: users, error } = state;
   if (loading) return <div>Now Loading...</div>;
   if (error) return <div>Error Occurred!! </div>;
   if (!users) return null;
