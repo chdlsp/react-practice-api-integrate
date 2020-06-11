@@ -1,8 +1,8 @@
 import React from "react";
 import axios from "axios";
-import useAsync from "./useAsync";
+import { useAsync } from "react-async";
 
-async function getuser(id) {
+async function getuser({ id }) {
   const response = await axios.get(
     `https://jsonplaceholder.typicode.com/users/${id}`
   );
@@ -11,9 +11,13 @@ async function getuser(id) {
 }
 
 function User({ id }) {
-  const [state] = useAsync(() => getuser(id), [id]);
-  const { loading, data: user, error } = state;
-  if (loading) return <div>Loading...</div>;
+  const { data: user, error, isLoading } = useAsync({
+    promiseFn: getuser,
+    id,
+    watch: id,
+  });
+
+  if (isLoading) return <div>Loading...</div>;
   if (error) return <div> Error Occurred! </div>;
   if (!user) return null;
   return (
